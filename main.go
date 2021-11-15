@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net"
+	"os"
 
 	scratchpad "github.com/JackKCWong/go-scratchpad/internal/core"
 	"github.com/gin-gonic/gin"
@@ -12,6 +14,8 @@ func main() {
 	unixsock := flag.String("unixsock", "", "path to unix socket")
 	flag.Parse()
 
+	fmt.Printf("%+v", os.Environ())
+	
 	r := gin.Default()
 
 	var listener net.Listener
@@ -32,6 +36,8 @@ func main() {
 }
 
 func setupRoutes(r *gin.Engine) {
+	r.Static("/", "./web")
+
 	r.POST("/wasm", func(c *gin.Context) {
 		snippet, ok := c.GetPostForm("snippet")
 		if !ok {
