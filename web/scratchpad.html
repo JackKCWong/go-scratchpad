@@ -1,0 +1,70 @@
+<!doctype html>
+<!--
+Copyright 2018 The Go Authors. All rights reserved.
+Use of this source code is governed by a BSD-style
+license that can be found in the LICENSE file.
+-->
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Go wasm</title>
+</head>
+
+<body>
+	<script src="go1.16/wasm_exec.js"></script>
+	<script>
+		if (!WebAssembly.instantiateStreaming) { // polyfill
+			WebAssembly.instantiateStreaming = async (resp, importObject) => {
+				const source = await (await resp).arrayBuffer();
+				return await WebAssembly.instantiate(source, importObject);
+			};
+		}
+
+		_console = window.console
+
+		override_console = {
+			log: (...args) => {
+				const text = args.map(arg => {
+					if (typeof arg === 'string') {
+						return arg;
+					} else {
+						return arg.toString();
+					}
+				})
+
+				document.getElementById('console').innerHTML += text.join(' ') + '<br>';
+			}
+		}
+
+		window.console = Object.assign(_console, override_console)
+
+		async function goRun() {
+			const go = new Go();
+			const formData = new FormData()
+			formData.append("snippet", document.getElementById("snippet").value)
+			fetch("/wasm", {
+				method: "POST",
+				body: formData
+			}).then(async resp => {
+				if (resp.status != 200) {
+					msg = await resp.text()
+					console.error(msg)
+					return
+				}
+
+				WebAssembly.instantiateStreaming(resp, go.importObject).then((result) => {
+					return go.run(result.instance);
+				}).catch((err) => {
+					console.error(err);
+				});
+			})
+		}
+	</script>
+
+	<textarea id="snippet" rows="10" cols="100"></textarea>
+	<button onClick="goRun();" id="runButton">Run</button>
+	<div id="console"></div>
+</body>
+
+</html>
