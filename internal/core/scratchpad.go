@@ -46,6 +46,8 @@ func compileToWasm(code string) ([]byte, error) {
 		return nil, fmt.Errorf("failed to create temp file: %w", err)
 	}
 
+	defer os.Remove(scratchFile.Name())
+	defer os.Remove(scratchFile.Name() + ".wasm")
 	defer scratchFile.Close()
 
 	_, err = io.WriteString(scratchFile, code)

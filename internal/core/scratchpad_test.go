@@ -22,4 +22,5 @@ func TestScratchpad_CompileToWasm(t *testing.T) {
 	wasm, err := compileToWasm(code)
 	expect.Nil(t, err)
 	expect.NotEmpty(t, wasm)
+	expect.Greater(t, len(wasm), 1000)
 }
