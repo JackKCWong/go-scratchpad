@@ -1,4 +1,4 @@
-package core
+package scratchpad 
 
 import (
 	"fmt"
@@ -9,10 +9,6 @@ import (
 
 	"github.com/go-cmd/cmd"
 )
-
-type Scratchpad struct {
-	Snippet string
-}
 
 func boilerplate(snippet string) string {
 	draft := fmt.Sprintf(`
@@ -75,4 +71,16 @@ func compileToWasm(code string) ([]byte, error) {
 	}
 
 	return ioutil.ReadFile(scratchFile.Name() + ".wasm")
+}
+
+func CompileSnippet(snippet string) ([]byte, error) {
+	goCode := boilerplate(snippet)
+
+	fixedCode, err := fixImports(goCode)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to fix imports: %w", err)
+	}
+
+	return compileToWasm(fixedCode)
 }
