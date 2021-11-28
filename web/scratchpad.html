@@ -43,7 +43,7 @@ license that can be found in the LICENSE file.
 			const go = new Go();
 			const formData = new FormData()
 			formData.append("snippet", document.getElementById("snippet").value)
-			fetch("/wasm", {
+			fetch("wasm", {
 				method: "POST",
 				body: formData
 			}).then(async resp => {
